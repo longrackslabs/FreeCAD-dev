@@ -13,6 +13,13 @@
   "extensions": [
     "ms-vscode.cpptools",
     "ms-vscode.cmake-tools"
-  ]
+  ],
+  "mounts": [
+    "type=bind,source=${env:SSH_AUTH_SOCK},target=/ssh-agent",
+    "type=bind,source=${env:HOME}/.gitconfig,target=/root/.gitconfig"
+  ],
+  "containerEnv": {
+    "SSH_AUTH_SOCK": "/ssh-agent"
+  }
 }
 
