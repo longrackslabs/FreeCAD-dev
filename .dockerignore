@@ -1,0 +1,9 @@
+.git
+.vscode
+__pycache__/
+*.pyc
+*.log
+*.tar
+*.zip
+.DS_Store
+

@@ -1,0 +1,13 @@
+# Python junk
+__pycache__/
+*.pyc
+
+# Docker
+*.tar
+*.gz
+
+# VSCode / JetBrains / editor junk
+.vscode/
+.idea/
+*.swp
+
