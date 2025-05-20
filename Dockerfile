@@ -12,7 +12,8 @@ RUN apt update && apt install -y \
   libxext-dev libxt-dev libxmu-dev libglu1-mesa-dev \
   libfreetype-dev libjpeg-dev libpng-dev libtbb-dev \
   libjsoncpp-dev libhdf5-dev pkg-config \
-  libfontconfig1-dev libxerces-c-dev libvtk9-dev libmedc-dev
+  libfontconfig1-dev libxerces-c-dev libvtk9-dev libmedc-dev \
+  gdb
 
 # Symlink python → python3.10
 RUN ln -sf /usr/bin/python3.10 /usr/bin/python
@@ -71,7 +72,8 @@ RUN git clone https://github.com/FreeCAD/FreeCAD.git && \
     mkdir build && cd build && \
     cmake .. \
       -G Ninja \
-      -DCMAKE_BUILD_TYPE=Release \
+# -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_BUILD_TYPE=Debug \
       -DPYTHON_EXECUTABLE=/usr/bin/python3.10 \
       -DCMAKE_PREFIX_PATH="/usr/local" \
       -DFREECAD_USE_EXTERNAL_PIVY=ON \
@@ -80,8 +82,12 @@ RUN git clone https://github.com/FreeCAD/FreeCAD.git && \
       -DFREECAD_BUILD_MESH_PART=OFF && \
     ninja
 
-ENV XDG_RUNTIME_DIR=/tmp/runtime-root
+# Add this HERE — after build, before WORKDIR/CMD
+COPY .vscode /opt/FreeCAD/.vscode
 
+# Runtime setup
+ENV XDG_RUNTIME_DIR=/tmp/runtime-root
 WORKDIR /opt/FreeCAD/build
 CMD ["/bin/bash"]
+
 
