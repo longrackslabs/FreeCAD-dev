@@ -1,55 +1,94 @@
-# FreeCAD-dev
+# FreeCAD-dev (Local Source, Full Dev Environment)
 
-A clean, source-built FreeCAD development environment using Docker.
+This project provides a complete FreeCAD development setup using:
 
-- Builds FreeCAD `master` from source
-- Includes OpenCASCADE (OCCT), Coin3D, Pivy, PySide2, and Qt
-- Supports GUI (X11) and CLI (FreeCADCmd) use
-- Faster and leaner than the official AppImage
+- Docker (Ubuntu 22.04 base)
+- Local source clone of FreeCAD
+- OpenCASCADE 7.6.3 built from source
+- Full VSCode integration with build + debug support
 
-## Getting Started
+---
 
-### Build the image
+## ✅ Prerequisites
+
+- VSCode with the **Dev Containers** extension
+- Your FreeCAD fork cloned into: `FreeCAD-dev/FreeCAD`
+- Docker installed
+
+---
+
+## 🛠 Folder Structure
+
+```
+FreeCAD-dev/
+├── Dockerfile
+├── .devcontainer/
+│   └── devcontainer.json
+├── .vscode/
+│   ├── launch.json
+│   └── tasks.json
+├── build.sh
+├── rebuild.sh
+├── clean.sh
+└── FreeCAD/      # ← Your forked source
+```
+
+---
+
+## 🚀 Getting Started
+
+### 1. Build the container image
 
 ```bash
 docker build --no-cache -t freecad-dev .
 ```
 
-### Run FreeCAD (GUI on Linux/X11)
+### 2. Reopen the folder in VSCode
 
-```bash
-xhost +local:docker
-docker run -it --rm \
-  -e DISPLAY=$DISPLAY \
-  -v /tmp/.X11-unix:/tmp/.X11-unix \
-  freecad-dev ./bin/FreeCAD
+```plaintext
+Ctrl+Shift+P → Dev Containers: Reopen in Container
 ```
 
-### Run FreeCAD (CLI only)
+### 3. Configure and build FreeCAD
 
 ```bash
-docker run -it --rm freecad-dev ./bin/FreeCADCmd
+./build.sh         # or ./rebuild.sh
+cd FreeCAD/build
+ninja              # build
 ```
 
-## What's Included
+---
 
-- Ubuntu 22.04 base
-- Python 3.10
-- Qt 5.15 with PySide2 (installed via apt)
-- Coin3D (from source)
-- Pivy (built against system Coin3D)
-- OpenCASCADE (OCCT from GitHub)
-- yaml-cpp, pybind11, Boost, MED, VTK
+## 🐞 Debugging in VSCode
 
-## Notes
+- Open a `.cpp` file (like `MainWindow.cpp`)
+- Set a breakpoint
+- Press `F5` to launch the FreeCAD GUI with GDB attached
 
-- GUI modules like AddonManager, Draft, BIM work out of the box
-- No PySide2 crashes or Qt symbol issues
-- Submodules (like OndselSolver) are initialized automatically
-- X11 GUI works on Linux; WSL2/macOS requires additional config
+---
 
-## License
+## 📌 Notes
 
-FreeCAD is licensed under the LGPL2+.
+- OCCT 7.6.3 is built inside the container and installed to `/opt/occt-install`
+- CMake is explicitly pointed to that install to avoid header/linker issues
+- All development and Git operations happen on your **local FreeCAD fork**
 
-This container is an independent development environment and not officially affiliated with the FreeCAD project. See: https://www.freecad.org
+---
+
+## 🧼 Cleanup
+
+```bash
+./clean.sh
+```
+
+Removes the build directory. Use `./rebuild.sh` to wipe + rebuild clean.
+
+---
+
+## 🔒 Git Hygiene
+
+This setup **does not touch your FreeCAD fork** with config files.
+
+All tooling lives in `FreeCAD-dev/`, outside the source tree.
+
+---
