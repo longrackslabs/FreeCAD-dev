@@ -9,7 +9,7 @@
   "type=bind,source=${localWorkspaceFolder}/FreeCAD,target=/opt/FreeCAD,type=bind",
   "type=bind,source=${localWorkspaceFolder}/.vscode,target=/opt/FreeCAD/.vscode,type=bind",
   "type=bind,source=${env:SSH_AUTH_SOCK},target=/ssh-agent",
-  "type=bind,source=${env:HOME}/.gitconfig,target=/root/.gitconfig"
+  // "type=bind,source=${env:HOME}/.gitconfig,target=/root/.gitconfig"
   ],
   "remoteUser": "root",
   "containerEnv": {
