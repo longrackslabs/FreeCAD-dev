@@ -68,6 +68,13 @@ RUN git clone https://github.com/Open-Cascade-SAS/OCCT.git /opt/occt && \
     cmake --build . --parallel && \
     cmake --install .
 
+# Install Qt runtime libraries to support GUI (e.g., xcb plugin)
+RUN apt update && apt install -y \
+  libxcb1 \
+  libx11-xcb1 \
+  libxcb-render0 \
+  libxcb-shape0 \
+  libxcb-xfixes0
 
 # Setup Library Paths...
 ENV LD_LIBRARY_PATH="/opt/occt-install/lib:/usr/local/lib:/lib:/usr/lib"
