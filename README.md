@@ -1,19 +1,20 @@
-# FreeCAD-dev (Local Source, Full Dev Environment)
+# FreeCAD-dev (Native Host Build, Full Dev Environment)
 
 This project provides a complete FreeCAD development setup using:
 
-- Docker (Ubuntu 22.04 base)
+- Native Linux build (Linux Mint 21.3 / Ubuntu 22.04 base)
+- Python 3.12 with system-wide Shiboken2 & PySide2
 - Local source clone of FreeCAD
-- OpenCASCADE 7.6.3 built from source
 - Full VSCode integration with build + debug support
 
 ---
 
 ## ✅ Prerequisites
 
-- VSCode with the **Dev Containers** extension
+- VSCode with the C++ and CMake extensions
 - Your FreeCAD fork cloned into: `FreeCAD-dev/FreeCAD`
-- Docker installed
+- Python 3.12 installed via APT (not virtualenv)
+- CMake ≥ 3.22 recommended
 
 ---
 
@@ -21,74 +22,88 @@ This project provides a complete FreeCAD development setup using:
 
 ```
 FreeCAD-dev/
-├── Dockerfile
-├── .devcontainer/
-│   └── devcontainer.json
 ├── .vscode/
-│   ├── launch.json
-│   └── tasks.json
-├── build.sh
-├── rebuild.sh
-├── clean.sh
-└── FreeCAD/      # ← Your forked source
+│   ├── launch.json       # F5 launches debug build
+│   └── tasks.json        # Manual build/run tasks
+├── run.sh                # (optional) launch helper
+└── FreeCAD/              # ← Your forked source
 ```
 
 ---
 
-## 🚀 Getting Started
-
-### 1. Build the container image
+## 🚀 Getting Started (Host Native)
 
 ```bash
-docker build --no-cache -t freecad-dev .
+sudo apt install build-essential cmake ninja-build git \
+  qttools5-dev qttools5-dev-tools libqt5svg5-dev \
+  libboost-all-dev libeigen3-dev libgl1-mesa-dev \
+  libglu1-mesa-dev libfreetype-dev libjsoncpp-dev \
+  libhdf5-dev libxerces-c-dev libvtk9-dev libmedc-dev \
+  libyaml-cpp-dev libocct-*-dev libshiboken2-dev libpyside2-dev \
+  python3.12-dev
 ```
 
-### 2. Reopen the folder in VSCode
-
-```plaintext
-Ctrl+Shift+P → Dev Containers: Reopen in Container
-```
-
-### 3. Configure and build FreeCAD
+### 1. Configure
 
 ```bash
-./build.sh         # or ./rebuild.sh
-cd FreeCAD/build
-ninja              # build
+cmake -S FreeCAD -B FreeCAD/build/debug \
+  -DCMAKE_BUILD_TYPE=Debug \
+  -DPYTHON_EXECUTABLE=/usr/bin/python3.12 \
+  -DFC_VERSION_SUFFIX="+longracks"
+```
+
+### 2. Build
+
+```bash
+cmake --build FreeCAD/build/debug --parallel 8
+```
+
+### 3. Run
+
+```bash
+LD_LIBRARY_PATH=FreeCAD/build/debug/lib ./FreeCAD/build/debug/bin/FreeCAD
 ```
 
 ---
 
 ## 🐞 Debugging in VSCode
 
-- Open a `.cpp` file (like `MainWindow.cpp`)
-- Set a breakpoint
-- Press `F5` to launch the FreeCAD GUI with GDB attached
+- F5 launches your build with GDB and environment setup
+- `Build FreeCAD (host)` and `Run FreeCAD (host)` tasks available
+- Breakpoints, watch, memory views fully supported
 
 ---
 
 ## 📌 Notes
 
-- OCCT 7.6.3 is built inside the container and installed to `/opt/occt-install`
-- CMake is explicitly pointed to that install to avoid header/linker issues
-- All development and Git operations happen on your **local FreeCAD fork**
+- Docker-based development was deprecated due to OpenGL/Qt GUI failures (`xcb` context issues)
+- Native build offers full integration, OpenGL support, and faster dev cycles
+- Your FreeCAD fork remains untouched — all tooling lives in `FreeCAD-dev/`
+
+---
+
+## 🔄 Syncing with Upstream
+
+```bash
+cd FreeCAD
+git fetch upstream
+git merge upstream/main
+git push origin main
+```
 
 ---
 
 ## 🧼 Cleanup
 
 ```bash
-./clean.sh
+rm -rf FreeCAD/build/debug
 ```
 
-Removes the build directory. Use `./rebuild.sh` to wipe + rebuild clean.
+Or use `./clean.sh` if you've kept script-based tooling.
 
 ---
 
-## 🔒 Git Hygiene
+## 🛠️ Maintainer Notes
 
-This setup **does not touch your FreeCAD fork** with config files.
-
-All tooling lives in `FreeCAD-dev/`, outside the source tree.
-
----
+- Current build uses Python 3.12 — be sure Shiboken2/PySide2 are ABI-matched
+- Custom version suffix (`+longracks`) appears in splash/About dialog
